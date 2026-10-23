@@ -1,0 +1,21 @@
+# Entornos virtuales
+venv/
+.venv/
+env/
+
+# Archivos de Python y caché
+__pycache__/
+*.py[cod]
+*$py.class
+*.pytest_cache/
+
+# Archivos de entorno y secretos
+.env.local
+
+# Git
+.git/
+.gitignore
+
+# Tests y scripts locales temporales
+tests/
+test_endpoints.py

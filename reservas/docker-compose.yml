@@ -1,0 +1,38 @@
+services:
+  db_reservas:
+    image: postgres:16-alpine
+    container_name: uniride_db_reservas
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: uniride_reservas_db
+    ports:
+      - "5434:5432" # Expone en 5434 para no chocar con local 5432 ni con los otros servicios
+    volumes:
+      - postgres_reservas_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d uniride_reservas_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  ms_reservas:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: uniride_ms_reservas
+    restart: always
+    ports:
+      - "8003:8003"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password123@db_reservas:5432/uniride_reservas_db
+      - PORT=8003
+      - VIAJES_SERVICE_URL=http://ms_viajes:8002
+      - ENVIRONMENT=docker
+    depends_on:
+      db_reservas:
+        condition: service_healthy
+
+volumes:
+  postgres_reservas_data:

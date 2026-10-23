@@ -1,0 +1,37 @@
+services:
+  db_viajes:
+    image: postgres:16-alpine
+    container_name: uniride_db_viajes
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: uniride_viajes_db
+    ports:
+      - "5433:5432" # Expone en 5433 en el host para no entrar en conflicto con el Postgres 5432 local
+    volumes:
+      - postgres_viajes_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d uniride_viajes_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  ms_viajes:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: uniride_ms_viajes
+    restart: always
+    ports:
+      - "8002:8002"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password123@db_viajes:5432/uniride_viajes_db
+      - PORT=8002
+      - ENVIRONMENT=docker
+    depends_on:
+      db_viajes:
+        condition: service_healthy
+
+volumes:
+  postgres_viajes_data:
