@@ -1,0 +1,11 @@
+services:
+  auth_service:
+    build: .
+    container_name: auth_service_container
+    ports:
+      - "8001:8001"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - .:/app
+    restart: always
